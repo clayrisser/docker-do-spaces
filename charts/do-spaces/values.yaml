@@ -5,7 +5,7 @@ images:
 
 config:
   clusterProvider: infrastructure
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   updateStrategy: Recreate
   doSpaces:
     bucket: ''
