@@ -1,0 +1,15 @@
+server {
+    listen       {{ getenv "PORT" }};
+    listen       [::]:{{ getenv "PORT" }};
+    server_name  localhost;
+    root         /opt/app;
+    location / {
+        rewrite           /(.*) /$1 break;
+        proxy_pass        https://{{ getenv "BUCKET" }}.{{ getenv "ENDPOINT" }}/{{ getenv "PREFIX" }};
+        proxy_hide_header Strict-Transport-Security;
+    }
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}

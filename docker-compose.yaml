@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  do-spaces:
+    image: codejamninja/do-spaces:latest
+    ports:
+      - 8080:8080
+    environment:
+      BUCKET: some-bucket
+      ENDPOINT: sfo2.digitaloceanspaces.com
+      PREFIX: ""
