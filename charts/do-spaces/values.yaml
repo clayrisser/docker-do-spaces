@@ -1,0 +1,53 @@
+images:
+  doSpaces:
+    repository: codejamninja/do-spaces
+    tag: 0.0.1
+
+config:
+  clusterProvider: infrastructure
+  imagePullPolicy: Always
+  updateStrategy: Recreate
+  doSpaces:
+    bucket: ''
+    endpoint: sfo2.digitaloceanspaces.com
+    prefix: ''
+    resources:
+      enabled: false
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+
+service:
+  doSpaces:
+    type: NodePort
+    externalTrafficPolicy: Cluster
+    nodePorts:
+      http:
+    lbPorts:
+      http: 80
+
+ingress:
+  doSpaces:
+    certificate: ''
+    enabled: false
+    hostname: ''
+    tls: false
+    issuer:
+      name: letsencrypt-staging
+
+probes:
+  liveness:
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  readiness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1

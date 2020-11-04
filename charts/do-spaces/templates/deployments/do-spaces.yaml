@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "do-spaces.fullname" . }}-do-spaces
+  labels:
+    app: {{ template "do-spaces.name" . }}-do-spaces
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "do-spaces.name" . }}-do-spaces
+      release: {{ .Release.Name }}
+  strategy:
+    type: {{ .Values.config.updateStrategy }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "do-spaces.name" . }}-do-spaces
+        release: {{ .Release.Name }}
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 89
+              preference:
+                matchExpressions:
+                  - key: application/state
+                    operator: In
+                    values:
+                      - stateless
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 90
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - {{ template "do-spaces.name" . }}-do-spaces
+      containers:
+        - name: {{ template "do-spaces.fullname" . }}-do-spaces
+          image: {{ .Values.images.doSpaces.repository }}:{{ .Values.images.doSpaces.tag }}
+          imagePullPolicy: {{ .Values.config.imagePullPolicy }}
+{{- if .Values.config.doSpaces.resources.enabled }}
+          resources:
+{{ toYaml .Values.config.doSpaces.resources | indent 12 }}
+{{- end }}
+          ports:
+            - name: container
+              containerPort: 8080
+          env:
+            - name: ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "do-spaces.fullname" . }}
+                  key: endpoint
+            - name: BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "do-spaces.fullname" . }}
+                  key: bucket
+            - name: PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "do-spaces.fullname" . }}
+                  key: prefix
+          livenessProbe:
+            tcpSocket:
+              port: container
+{{ toYaml .Values.probes.liveness | indent 12 }}
+          readinessProbe:
+            tcpSocket:
+              port: container
+{{ toYaml .Values.probes.readiness | indent 12 }}

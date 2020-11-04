@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "do-spaces.fullname" . }}
+  labels:
+    app: {{ template "do-spaces.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  bucket: {{ .Values.config.doSpaces.bucket | quote }}
+  endpoint: {{ .Values.config.doSpaces.endpoint | quote }}
+  prefix: {{ .Values.config.doSpaces.prefix | quote }}

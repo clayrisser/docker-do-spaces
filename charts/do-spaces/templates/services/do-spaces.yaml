@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "do-spaces.fullname" . }}-do-spaces
+  labels:
+    app: {{ template "do-spaces.name" . }}-do-spaces
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  {{- if .Values.ingress.doSpaces.enabled }}
+  type: ClusterIP
+  {{- else }}
+  type: {{ .Values.service.doSpaces.type }}
+  {{- if (eq .Values.service.doSpaces.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.service.doSpaces.externalTrafficPolicy }}
+  {{- end }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ (eq .Values.service.doSpaces.type "LoadBalancer") | ternary .Values.service.doSpaces.lbPorts.http "80" }}
+      targetPort: container
+      {{- if (and (eq .Values.service.doSpaces.type "NodePort") (not (empty .Values.service.doSpaces.nodePorts.http))) }}
+      nodePort: {{ .Values.service.doSpaces.nodePorts.http }}
+      {{- end }}
+  selector:
+    app: {{ template "do-spaces.name" . }}-do-spaces
+    release: {{ .Release.Name }}
