@@ -4,6 +4,8 @@
 
 > proxy digital ocean spaces
 
+![](assets/docker-do-spaces.png)
+
 Please ★ this repo if you found it useful ★ ★ ★
 
 ## Installation
